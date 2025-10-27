@@ -13,7 +13,7 @@ export default function Register() {
     setMessage("");
 
     try {
-      const res = await axios.post("http://192.168.0.101:4000/api/auth/register", {
+      const res = await axios.post("https://pwaback-u4hc.vercel.app/api/auth/register", {
         name,
         email,
         password,

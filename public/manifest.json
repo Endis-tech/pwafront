@@ -1,21 +1,16 @@
 {
-    "name": "To-Do List",
-    "short_name": "To-Do List",
-    "description": "Una aplicación de lista de tareas simple y efectiva.",
-    " start_url" :"./",
-        "display": "stanalone",
-         "background_color": "#ffffff",
-        "theme_color": "#302269",
-        "icons": [
-          {
-            "src":"/icons/icon-152x152.png",
-            "sizes": "152x152",
-            "type":"image/png"
-          },
-          {
-            "src": "/icons/icon-152x152.png",
-            "sizes": "152x152",
-            "type": "image/png"
-          }
-        ]
+  "name": "To-Do List",
+  "short_name": "To-Do List",
+  "description": "Una aplicación de lista de tareas simple y efectiva.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#302269",
+  "icons": [
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    }
+  ]
 }
