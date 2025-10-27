@@ -36,10 +36,10 @@ export async function syncNow() {
       for (const map of data?.mapping || []) {
         await setMapping(map.clientId, map.serverId);
         // actualizar task local con serverId
-        await putTaskLocal({
-          ...toCreate.find((t) => t.clientId === map.clientId),
-          _id: map.serverId,
-        });
+        const taskToUpdate = toCreate.find((t) => t.clientId === map.clientId);
+        if (taskToUpdate) {
+          await putTaskLocal({ ...taskToUpdate, _id: map.serverId });
+        }
       }
     } catch (err) {
       console.error("Error bulk sync create", err);
@@ -80,8 +80,7 @@ export async function syncNow() {
 export async function refreshTasks() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const tasks = await getAllTaskLocal();
-  // Aquí actualizarías tu vista, por ejemplo:
-  // renderTasks(tasks);
+  // Aquí puedes actualizar la vista, por ejemplo: renderTasks(tasks);
 }
 
 // --- Configura sincronización al volver online ---
