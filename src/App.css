@@ -1,42 +1,1272 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* src/App.css - VERSIÓN COMPLETA Y ACTUALIZADA */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0f0f0f;
+  min-height: 100vh;
+  color: #111827;
+  padding: 0;
+}
+
+/* CONTENEDOR PRINCIPAL QUE OCUPA TODA LA VISTA */
+.page-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+/* CONTENEDOR BLANCO FLOTANTE */
+.page-container {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  border: 1px solid #e5e7eb;
+  margin: 0;
+}
+
+/* TÍTULOS ROSITAS */
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff4fa3, #ff82c3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-subtitle {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin: 0.75rem 0 2rem;
+  line-height: 1.5;
+}
+
+/* IMAGEN */
+.page-image {
+  width: 180px;
+  height: auto;
+  margin: 1.5rem auto;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(255, 79, 163, 0.25);
+  transition: transform 0.3s ease;
+}
+
+.page-image:hover {
+  transform: scale(1.05);
+}
+
+/* FORMULARIO */
+.page-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ff4fa3;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+/* CAMPOS DE ENTRADA */
+.input-field {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  font-family: 'Inter', sans-serif;
+  border: 2px solid #ffb6db;
+  border-radius: 12px;
+  background: #ffffff;
+  transition: all 0.25s ease;
+  color: #111827;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #ff4fa3;
+  box-shadow: 0 0 0 3px rgba(255, 79, 163, 0.2);
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+/* BOTONES ROSITAS */
+.btn {
+  padding: 1.2rem 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  letter-spacing: -0.01em;
+  margin-top: 0.25rem;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ff4fa3, #ff82c3);
+  color: white;
+  box-shadow: 0 6px 20px rgba(255, 79, 163, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 79, 163, 0.4);
+  background: linear-gradient(135deg, #ff82c3, #ff4fa3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #ff4fa3;
+  border: 2px solid #ff4fa3;
+  box-shadow: 0 4px 15px rgba(255, 79, 163, 0.15);
+}
+
+.btn-secondary:hover {
+  background: #fff0f7;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 79, 163, 0.25);
+}
+
+/* ENLACES */
+.text-link {
+  background: none;
+  border: none;
+  color: #ff82c3;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+
+.text-link:hover {
+  color: #ff4fa3;
+  text-decoration: underline;
+  transform: translateY(-1px);
+}
+
+/* CHECKBOX ROSITA */
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1rem 0 1.5rem;
+  text-align: left;
+}
+
+.checkbox-group input {
+  margin-top: 0.25rem;
+  width: 20px;
+  height: 20px;
+  accent-color: #ff4fa3;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.checkbox-group label {
+  font-size: 0.95rem;
+  color: #4b5563;
+  cursor: pointer;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.checkbox-group a {
+  color: #ff4fa3;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.checkbox-group a:hover {
+  text-decoration: underline;
+}
+
+/* MENSAJES */
+.error-message {
+  color: #ff4fa3;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  padding: 0.875rem 1rem;
+  background: #fff0f7;
+  border-radius: 10px;
+  border-left: 4px solid #ff4fa3;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.success-message {
+  color: #ff4fa3;
+  font-size: 0.95rem;
+  margin: 0.5rem 0;
+  padding: 0.875rem 1rem;
+  background: #f7fffa;
+  border-radius: 10px;
+  border-left: 4px solid #4fd1a3;
+  text-align: center;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* BOTÓN ATRÁS FLOTANTE ROSITA SÓLIDO */
+.back-link {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ff4fa3, #ff82c3);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  border: none;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(255, 79, 163, 0.3);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.back-link:hover {
+  background: linear-gradient(135deg, #ff82c3, #ff4fa3);
+  transform: translateX(-4px) translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 79, 163, 0.4);
 }
 
-.card {
-  padding: 2em;
+/* ======================================= */
+/* ESTILOS PARA EL DASHBOARD DE TAREAS */
+/* ======================================= */
+
+/* FONDO CON GRADIENTE ROSITA PARA EL DASHBOARD */
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff5f9 0%, #ffeaf3 50%, #ffd6e7 100%);
 }
 
-.read-the-docs {
+/* HEADER ROSITA CON BIENVENIDA */
+.topbar {
+  background: linear-gradient(135deg, #ff9ac8 0%, #ff7eb3 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(255, 105, 180, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.user-welcome {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  color: white;
+  font-weight: 500;
+  opacity: 0.9;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.app-title {
+  font-size: 1.8rem !important;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+/* Botón de salir más pequeño */
+.btn-logout-small {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  padding: 0.5rem 1.25rem !important;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+  height: fit-content;
+}
+
+.btn-logout-small:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  border-color: white;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* CONTENIDO PRINCIPAL */
+.dashboard-content {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 12px 40px rgba(255, 105, 180, 0.1);
+  border: 1px solid #ffe4ec;
+}
+
+/* CONTROLES Y ESTADÍSTICAS */
+.controls-and-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* FORMULARIO PARA AÑADIR TAREAS */
+.add-compact {
+  background: linear-gradient(135deg, #fff0f7 0%, #ffe4f0 100%);
+  padding: 2rem;
+  border-radius: 20px;
+  border: 2px dashed #ffb6d9;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.input-title {
+  padding: 1rem 1.5rem;
+  border: 2px solid #ffb6d9;
+  border-radius: 15px;
+  font-size: 1.1rem;
+  background: white;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.input-title:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+.input-desc {
+  padding: 1rem 1.5rem;
+  border: 2px solid #ffb6d9;
+  border-radius: 15px;
+  font-size: 1rem;
+  background: white;
+  resize: vertical;
+  min-height: 80px;
+  max-height: 200px;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  color: #333;
+}
+
+.input-desc:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+/* BOTÓN AÑADIR */
+.btn-add {
+  background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+  color: white;
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  box-shadow: 0 6px 20px rgba(255, 105, 180, 0.3);
+  border-radius: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.4);
+}
+
+/* TARJETA DE ESTADÍSTICAS */
+.stats-card {
+  background: linear-gradient(135deg, #ff9ac8 0%, #ff7eb3 100%);
+  padding: 1.5rem;
+  border-radius: 20px;
+  color: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  align-items: center;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-item span {
+  display: block;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.stat-item strong {
+  font-size: 2rem;
+  font-weight: 800;
+  display: block;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* BADGE ONLINE/OFFLINE SIN AZUL */
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+/* BARRA DE HERRAMIENTAS */
+.toolbar-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-search {
+  padding: 1rem 1.5rem;
+  border: 2px solid #ffb6d9;
+  border-radius: 15px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+  color: #333;
+}
+
+.input-search:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+.input-search::placeholder {
+  color: #B0B0B0;
+  font-weight: 400;
+}
+
+.filters-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* BOTONES DE FILTRO */
+.btn-filter {
+  padding: 0.875rem 1.75rem;
+  background: #fff0f7;
+  color: #ff69b4;
+  border: 2px solid #ffb6d9;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.btn-filter.active {
+  background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+  color: white;
+  border-color: #ff69b4;
+}
+
+.btn-filter:hover:not(.active) {
+  background: #ffe4ec;
+}
+
+/* LISTA DE TAREAS */
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.task-item {
+  background: white;
+  border: 2px solid #ffe4ec;
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.task-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.15);
+  border-color: #ffb6d9;
+}
+
+.task-item.done {
+  background: linear-gradient(135deg, #f8f8f8 0%, #f0f0f0 100%);
+  border-color: #e0e0e0;
+}
+
+.task-item.done .task-title {
+  text-decoration: line-through;
   color: #888;
 }
+
+/* EFECTO PARA TAREAS COMPLETADAS */
+.task-item.done::before {
+  content: "✓";
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #4CAF50;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+/* SELECT DE ESTADO SIN AZUL */
+.status-select {
+  padding: 0.5rem 1rem;
+  border: 2px solid #ffb6d9;
+  border-radius: 10px;
+  background: white;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #ff69b4;
+}
+
+.status-select option {
+  background: white;
+  color: #333;
+}
+
+.status-select option[value="Pendiente"] {
+  color: #FF6B9D;
+}
+
+.status-select option[value="En Progreso"] {
+  color: #FFB347;
+}
+
+.status-select option[value="Completada"] {
+  color: #4CAF50;
+}
+
+/* CHECKBOX ROSITA */
+.task-check-label input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  accent-color: #ff69b4;
+  cursor: pointer;
+  margin-top: 0.25rem;
+}
+
+/* INFORMACIÓN DE TAREA */
+.task-info {
+  flex: 1;
+}
+
+.task-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.task-title:hover {
+  color: #ff69b4;
+}
+
+.task-description {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+
+/* Fecha de tarea */
+.task-date {
+  color: #888;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* FORMULARIO DE EDICIÓN */
+.task-edit-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.edit-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid #ffb6d9;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+  color: #333;
+  font-family: inherit;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: #ff69b4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+}
+
+.edit-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.edit-desc {
+  min-height: 60px;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* BOTONES DE GUARDAR Y CANCELAR */
+.btn-save {
+  background: linear-gradient(135deg, #FF6B9D 0%, #FF4D8D 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #666;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+/* ACCIONES DE TAREA */
+.task-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-btn {
+  background: #fff0f7;
+  border: 2px solid #ffb6d9;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+  color: #ff69b4;
+}
+
+.icon-btn:hover {
+  background: #ff69b4;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* MENSAJES */
+.loading-message,
+.empty-message {
+  text-align: center;
+  padding: 3rem;
+  color: #ff69b4;
+  font-size: 1.2rem;
+  background: #fff0f7;
+  border-radius: 20px;
+  border: 2px dashed #ffb6d9;
+}
+
+/* ANIMACIONES */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 107, 157, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 157, 0);
+  }
+}
+
+.task-item {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.user-welcome {
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.badge[style*="background-color: #FF6B9D"] {
+  animation: pulse 2s infinite;
+}
+
+/* SCROLLBAR ESTILIZADA */
+.task-list {
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.task-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: #fff0f7;
+  border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #ff9ac8 0%, #ff7eb3 100%);
+  border-radius: 10px;
+}
+
+.task-list::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #ff7eb3 0%, #ff69b4 100%);
+}
+
+/* RESPONSIVE PARA MÓVILES */
+@media (max-width: 768px) {
+  .wrap {
+    padding: 10px;
+  }
+  
+  .dashboard-content {
+    padding: 1.5rem;
+  }
+  
+  .topbar {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.2rem;
+  }
+  
+  .user-welcome {
+    order: 1;
+  }
+  
+  .btn-logout-small {
+    order: 2;
+    align-self: center;
+    padding: 0.4rem 1rem !important;
+  }
+  
+  .app-title {
+    font-size: 1.5rem !important;
+  }
+  
+  .welcome-text {
+    font-size: 1rem;
+  }
+  
+  .add-compact {
+    padding: 1.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .task-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .status-select {
+    min-width: 100%;
+  }
+  
+  .task-actions {
+    align-self: flex-end;
+    margin-top: 1rem;
+  }
+  
+  .edit-actions {
+    flex-direction: column;
+  }
+  
+  .btn, .btn-filter, .btn-save, .btn-cancel {
+    width: 100%;
+  }
+}
+
+/* Ajustes para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.3rem !important;
+  }
+  
+  .welcome-text {
+    font-size: 0.9rem;
+  }
+  
+  .btn-logout-small {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.8rem !important;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .stat-item {
+    padding: 0.75rem;
+  }
+  
+  .stat-item strong {
+    font-size: 1.5rem;
+  }
+  
+  .filters-group {
+    flex-direction: column;
+  }
+  
+  .task-item {
+    padding: 1rem;
+  }
+  
+  .task-title {
+    font-size: 1.1rem;
+  }
+  
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .dashboard-content {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+  
+  .controls-and-stats {
+    gap: 1rem;
+  }
+  
+  .add-compact {
+    padding: 1rem;
+  }
+  
+  .input-group {
+    gap: 0.5rem;
+  }
+}
+
+/* RESPONSIVE PARA TABLETS */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .wrap {
+    max-width: 95%;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .task-item {
+    flex-wrap: wrap;
+  }
+}
+
+/* RESPONSIVE EXTREMO - MÓVILES MUY PEQUEÑOS */
+@media (max-width: 320px) {
+  .page-wrapper {
+    padding: 0.5rem;
+  }
+  
+  .page-container {
+    padding: 1.5rem 1rem;
+    border-radius: 20px;
+    margin: 0.5rem;
+  }
+  
+  .page-title {
+    font-size: 1.8rem;
+  }
+  
+  .page-subtitle {
+    font-size: 0.95rem;
+    margin: 0.5rem 0 1.5rem;
+  }
+  
+  .page-image {
+    width: 130px;
+    margin: 1rem auto;
+  }
+  
+  .btn {
+    padding: 0.875rem;
+    font-size: 1rem;
+    border-radius: 12px;
+  }
+  
+  .input-field {
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+  }
+  
+  .back-link {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* MÓVILES MEDIANOS */
+@media (min-width: 321px) and (max-width: 375px) {
+  .page-container {
+    padding: 1.75rem 1.25rem;
+    border-radius: 20px;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.05rem;
+  }
+  
+  .page-image {
+    width: 140px;
+  }
+  
+  .btn {
+    padding: 0.95rem;
+  }
+  
+  .input-field {
+    padding: 0.875rem 1rem;
+  }
+  
+  .back-link {
+    top: 1rem;
+    left: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* MÓVILES GRANDES */
+@media (min-width: 376px) and (max-width: 480px) {
+  .page-container {
+    padding: 2rem 1.5rem;
+  }
+  
+  .page-title {
+    font-size: 2.2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.15rem;
+  }
+  
+  .page-image {
+    width: 150px;
+  }
+  
+  .back-link {
+    top: 1.25rem;
+    left: 1.25rem;
+  }
+}
+
+/* TABLETS */
+@media (min-width: 768px) {
+  .page-wrapper {
+    padding: 2rem;
+  }
+  
+  .page-container {
+    max-width: 500px;
+    padding: 3rem 2.5rem;
+    border-radius: 28px;
+  }
+  
+  .page-title {
+    font-size: 2.8rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.4rem;
+    margin: 1rem 0 2.5rem;
+  }
+  
+  .page-image {
+    width: 200px;
+    margin: 2rem auto;
+  }
+  
+  .btn {
+    padding: 1.3rem 1.5rem;
+    font-size: 1.15rem;
+  }
+  
+  .input-field {
+    padding: 1.125rem 1.5rem;
+    font-size: 1.05rem;
+  }
+  
+  .back-link {
+    top: 2rem;
+    left: 2rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* DESKTOP */
+@media (min-width: 1024px) {
+  .page-container {
+    max-width: 520px;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+  }
+  
+  .page-title {
+    font-size: 3rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.5rem;
+  }
+  
+  .page-image {
+    width: 220px;
+  }
+  
+  .btn:hover {
+    transform: translateY(-4px);
+  }
+  
+  .back-link {
+    top: 2.5rem;
+    left: 2.5rem;
+  }
+}
+
+/* PANTALLAS MUY GRANDES (4K) */
+@media (min-width: 1600px) {
+  .page-wrapper {
+    padding: 3rem;
+  }
+  
+  .page-container {
+    max-width: 600px;
+    padding: 4rem 3rem;
+    border-radius: 32px;
+  }
+  
+  .page-title {
+    font-size: 3.5rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1.8rem;
+  }
+  
+  .page-image {
+    width: 250px;
+  }
+  
+  .btn {
+    padding: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .input-field {
+    padding: 1.25rem 1.75rem;
+    font-size: 1.15rem;
+  }
+  
+  .back-link {
+    top: 3rem;
+    left: 3rem;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* SOPORTE PARA PANTALLAS EN LANDSCAPE (HORIZONTAL) */
+@media (max-height: 600px) and (orientation: landscape) {
+  .page-wrapper {
+    padding: 0.5rem;
+    align-items: flex-start;
+    min-height: auto;
+  }
+  
+  .page-container {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+  }
+  
+  .page-image {
+    width: 100px;
+    margin: 0.5rem auto;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .page-subtitle {
+    font-size: 1rem;
+    margin: 0.25rem 0 1rem;
+  }
+  
+  .back-link {
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+
+
+

@@ -1,73 +1,114 @@
+// bd.ts
 import { openDB } from "idb";
 
-type DBSchema = {
-  tasks: { key: string; value: any };
-  outbox: { key: string; value: any };
-  meta: { key: string; value: { key: string; serverId: string } };
-};
+const DB_NAME = "BackPWA";
+const DB_VERSION = 2;
 
-let dbp: ReturnType<typeof openDB<DBSchema>>;
+let dbPromise: Promise<Awaited<ReturnType<typeof openDB>>>;
 
-export function db() {
-  if (!dbp) {
-    dbp = openDB<DBSchema>("todo-pwa", 1, {
-      upgrade(d) {
-        d.createObjectStore("tasks", { keyPath: "_id" });
-        d.createObjectStore("outbox", { keyPath: "_id" });
-        d.createObjectStore("meta", { keyPath: "key" });
+export function getDB() {
+  if (!dbPromise) {
+    dbPromise = openDB(DB_NAME, DB_VERSION, {
+      upgrade(db, oldVersion) {
+        if (!db.objectStoreNames.contains("tasks")) {
+          db.createObjectStore("tasks", { keyPath: "_id" });
+        }
+        if (!db.objectStoreNames.contains("outbox")) {
+          db.createObjectStore("outbox", { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains("meta")) {
+          db.createObjectStore("meta", { keyPath: "key" });
+        }
       },
     });
   }
-  return dbp;
+  return dbPromise;
 }
 
-// --- TAREAS CON CACHE LOCAL ---
+// --- Operaciones en tasks ---
 export async function cacheTasks(list: any[]) {
-  const tx = (await db()).transaction("tasks", "readwrite");
+  const db = await getDB();
+  const tx = db.transaction("tasks", "readwrite");
   const store = tx.objectStore("tasks");
-
+  
   await store.clear();
   for (const t of list) await store.put(t);
   await tx.done;
 }
 
 export async function putTaskLocal(task: any) {
-  await (await db()).put("tasks", task);
+  const db = await getDB();
+  await db.put("tasks", task);
 }
 
-export async function getAllTaskLocal() {
-  return (await (await db()).getAll("tasks")) || [];
+export async function getAllTasksLocal() {
+  const db = await getDB();
+  return await db.getAll("tasks");
 }
 
 export async function removeTaskLocal(id: string) {
-  await (await db()).delete("tasks", id);
+  const db = await getDB();
+  await db.delete("tasks", id);
 }
 
-// --- OUTBOX ---
+// --- Operaciones en outbox ---
 export type OutboxOp =
-  | { id: string; op: "create"; clientId: string; data: any; ts: number }
-  | { id: string; op: "update"; serverId?: string; clientId?: string; data: any; ts: number }
-  | { id: string; op: "delete"; serverId?: string; clientId?: string; ts: number };
+  | { id: string; op: "create"; clientId: string; data: any; ts: number; }
+  | { id: string; op: "update"; serverId?: string; clientId?: string; data: any; ts: number; }
+  | { id: string; op: "delete"; serverId?: string; clientId?: string; ts: number; };
 
 export async function queue(op: OutboxOp) {
-  await (await db()).put("outbox", op);
+  const db = await getDB();
+  await db.put("outbox", op);
 }
 
 export async function getOutbox() {
-  return (await (await db()).getAll("outbox")) || [];
+  const db = await getDB();
+  return await db.getAll("outbox");
 }
 
 export async function clearOutbox() {
-  const tx = (await db()).transaction("outbox", "readwrite");
+  const db = await getDB();
+  const tx = db.transaction("outbox", "readwrite");
   await tx.store.clear();
   await tx.done;
 }
 
-// --- MAPPING CLIENT ID ↔ SERVER ID ---
+// --- Operaciones en meta ---
 export async function setMapping(clientId: string, serverId: string) {
-  await (await db()).put("meta", { key: clientId, serverId });
+  const db = await getDB();
+  await db.put("meta", { key: `mapping-${clientId}`, serverId });
 }
 
 export async function getMapping(clientId: string) {
-  return (await (await db()).get("meta", clientId))?.serverId as string | undefined;
+  const db = await getDB();
+  const result = await db.get("meta", `mapping-${clientId}`);
+  return result?.serverId as string | undefined;
+}
+
+// 👇 Manejo de usuario actual
+export async function getCurrentUserId(): Promise<string | null> {
+  const db = await getDB();
+  const result = await db.get("meta", "currentUserId");
+  return result?.value || null;
+}
+
+export async function setCurrentUserId(userId: string): Promise<void> {
+  const db = await getDB();
+  await db.put("meta", { key: "currentUserId", value: userId });
+}
+
+export async function initForUser(userId: string): Promise<void> {
+  const current = await getCurrentUserId();
+  if (current !== userId) {
+    const db = await getDB();
+    const tx = db.transaction(["tasks", "outbox"], "readwrite");
+    await tx.objectStore("tasks").clear();
+    await tx.objectStore("outbox").clear();
+    await tx.done;
+    await setCurrentUserId(userId);
+    console.log("Initialized DB for new user:", userId);
+  } else {
+    console.log("Reusing DB for existing user:", userId);
+  }
 }

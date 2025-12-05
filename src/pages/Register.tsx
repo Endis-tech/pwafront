@@ -1,16 +1,27 @@
+// src/pages/Register.tsx
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./style.css"; 
+import "../App.css";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setError("");
+
+    if (!agreeTerms) {
+      setError("Debes aceptar los términos y condiciones");
+      return;
+    }
 
     try {
       const res = await axios.post("https://pwaback-u4hc.vercel.app/api/auth/register", {
@@ -19,62 +30,133 @@ export default function Register() {
         password,
       });
 
-      setMessage(res.data.message || "Usuario registrado con éxito 🎉");
+      setMessage(res.data.message || "¡Cuenta creada con éxito! 🎉");
+      
+      // Limpiar formulario
       setName("");
       setEmail("");
       setPassword("");
+      setAgreeTerms(false);
+      
+      // Redirigir después de 2 segundos
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (err: any) {
-      setMessage(err.response?.data?.message || "Error al registrar usuario");
+      setError(err.response?.data?.message || "Error al registrar usuario");
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Registro de Usuario</h2>
-        <p className="auth-subtitle">Crea tu cuenta para continuar</p>
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="input-group">
+    <div className="page-wrapper">
+      {/* Botón de volver atrás */}
+      <a href="/welcome" className="back-link">
+        <span>←</span> Atrás
+      </a>
+
+      <div className="page-container">
+        {/* Imagen */}
+        <img 
+          src="/images/chivas.png" 
+          alt="Logo" 
+          className="page-image" 
+        />
+
+        <h1 className="page-title">Crear Cuenta</h1>
+        <p className="page-subtitle">
+          Regístrate para comenzar tu experiencia
+        </p>
+
+        <form onSubmit={handleSubmit} className="page-form">
+          {/* Nombre */}
+          <div className="form-group">
+            <label htmlFor="name" className="form-label">
+              Nombre completo
+            </label>
             <input
               type="text"
+              id="name"
+              placeholder="Tu nombre completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nombre"
               required
+              className="input-field"
             />
-            <label>Nombre</label>
           </div>
-          <div className="input-group">
+
+          {/* Email */}
+          <div className="form-group">
+            <label htmlFor="email" className="form-label">
+              Correo electrónico
+            </label>
             <input
               type="email"
+              id="email"
+              placeholder="ejemplo@correo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Correo"
               required
+              className="input-field"
             />
-            <label>Correo</label>
           </div>
-          <div className="input-group">
+
+          {/* Contraseña */}
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">
+              Contraseña
+            </label>
             <input
               type="password"
+              id="password"
+              placeholder="Crea una contraseña segura"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Contraseña"
+              required
+              className="input-field"
+            />
+          </div>
+
+          {/* Términos y condiciones */}
+          <div className="checkbox-group">
+            <input 
+              type="checkbox" 
+              id="terms" 
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
               required
             />
-            <label>Contraseña</label>
+            <label htmlFor="terms">
+              Acepto los <a href="/terms">términos y condiciones</a> y la <a href="/privacy">política de privacidad</a>
+            </label>
           </div>
-          <button type="submit" className="auth-btn">
-            Registrarse
+
+          {/* Mensajes */}
+          {message && (
+            <div className="success-message">
+              {message}
+            </div>
+          )}
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+          {/* Botón de registro */}
+          <button type="submit" className="btn btn-primary">
+            Crear cuenta
           </button>
-          {message && <p className="auth-error">{message}</p>}
+
+          {/* Enlace a login */}
+          <button 
+            type="button" 
+            className="text-link"
+            onClick={() => navigate("/login")}
+          >
+            ¿Ya tienes cuenta? Inicia sesión
+          </button>
         </form>
-        <p className="auth-footer">
-          ¿Ya tienes cuenta?{" "}
-          <a href="/login" className="auth-link">
-            Inicia sesión
-          </a>
-        </p>
       </div>
     </div>
   );

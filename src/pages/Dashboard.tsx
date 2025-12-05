@@ -1,28 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, setAuth } from "../api";
-import { useNavigate } from "react-router-dom";
 import {
   cacheTasks,
-  getAllTaskLocal,
+  getAllTasksLocal,
   putTaskLocal,
   removeTaskLocal,
   queue,
   type OutboxOp,
 } from "../offline/db";
 import { syncNow, setupOnlineSync } from "../offline/sync";
-import { FaEdit, FaTrash } from "react-icons/fa";
-
-type Status = "Pendiente" | "En Progreso" | "Completada";
 
 type Task = {
   _id: string;
   title: string;
   description?: string;
-  status: Status;
-  clienteId?: string;
+  status: "Pendiente" | "En Progreso" | "Completada";
+  clientId?: string;
   createdAt?: string;
   deleted?: boolean;
 };
+
+type Status = "Pendiente" | "En Progreso" | "Completada";
 
 function normalizeTask(x: any): Task {
   return {
@@ -35,39 +33,58 @@ function normalizeTask(x: any): Task {
       x?.status === "Pendiente"
         ? x.status
         : "Pendiente",
-    clienteId: x?.clienteId,
+    clientId: x?.clientId,
     createdAt: x?.createdAt,
     deleted: !!x?.deleted,
   };
 }
 
-export default function Dashboard() {
-  const navigate = useNavigate();
+// Helper: detectar si un ID es un UUID (cliente)
+function isLocalTaskId(id: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+}
 
+export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  // 👇 Cambiamos el tipo de "active" → "pending"
+  const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingDescription, setEditingDescription] = useState("");
   const [online, setOnline] = useState<boolean>(navigator.onLine);
+  const [userName, setUserName] = useState<string>("");
+
+  // 👇 Extraer nombre del usuario del token (JWT)
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setAuth(token);
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUserName(payload.name || payload.username || "Usuario");
+      } catch (e) {
+        setUserName("Usuario");
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    setAuth(localStorage.getItem("token"));
     setupOnlineSync();
 
     const on = () => setOnline(true);
     const off = () => setOnline(false);
+    
     window.addEventListener("online", on);
     window.addEventListener("offline", off);
 
     (async () => {
-      const local = await getAllTaskLocal();
+      const local = await getAllTasksLocal();
       if (local?.length) setTasks(local.map(normalizeTask));
-
+      
       await loadFromServer();
       await syncNow();
       await loadFromServer();
@@ -82,36 +99,30 @@ export default function Dashboard() {
   async function loadFromServer() {
     try {
       const { data } = await api.get("/tasks");
-      const raw = Array.isArray(data?.items)
-        ? data.items
-        : Array.isArray(data?.tasks)
-        ? data.tasks
-        : Array.isArray(data?.data)
-        ? data.data
-        : Array.isArray(data)
-        ? data
-        : [];
+      const raw = Array.isArray(data?.items) ? data.items : [];
       const list = raw.map(normalizeTask);
       setTasks(list);
       await cacheTasks(list);
     } catch {
+      // Si falla, ya tenemos lo local
     } finally {
-      setLoading(false);
+      setLoading(false);  
     }
   }
 
   async function addTask(e: React.FormEvent) {
     e.preventDefault();
     const t = title.trim();
-    const d = description.trim();
+    const desc = description.trim();
     if (!t) return;
 
-    const clienteId = crypto.randomUUID();
+    const clientId = crypto.randomUUID();
     const localTask = normalizeTask({
-      _id: clienteId,
+      _id: clientId,
       title: t,
-      description: d,
+      description: desc,
       status: "Pendiente",
+      clientId,
     });
 
     setTasks((prev) => [localTask, ...prev]);
@@ -119,35 +130,14 @@ export default function Dashboard() {
     setTitle("");
     setDescription("");
 
-    if (!navigator.onLine) {
-      const op: OutboxOp = {
-        id: "op-" + clienteId,
-        op: "create",
-        clientId: clienteId,
-        data: localTask,
-        ts: Date.now(),
-      };
-      await queue(op);
-      return;
-    }
-
-    try {
-      const { data } = await api.post("/tasks", { title: t, description: d });
-      const created = normalizeTask(data?.task ?? data);
-      setTasks((prev) =>
-        prev.map((x) => (x._id === clienteId ? created : x))
-      );
-      await putTaskLocal(created);
-    } catch {
-      const op: OutboxOp = {
-        id: "op-" + clienteId,
-        op: "create",
-        clientId: clienteId,
-        data: localTask,
-        ts: Date.now(),
-      };
-      await queue(op);
-    }
+    const op: OutboxOp = {
+      id: "op-" + clientId,
+      op: "create",
+      clientId,
+      data: localTask,
+      ts: Date.now(),
+    };
+    await queue(op);
   }
 
   function startEdit(task: Task) {
@@ -156,56 +146,79 @@ export default function Dashboard() {
     setEditingDescription(task.description ?? "");
   }
 
+  function cancelEdit() {
+    setEditingId(null);
+    setEditingTitle("");
+    setEditingDescription("");
+  }
+
   async function saveEdit(taskId: string) {
     const newTitle = editingTitle.trim();
-    const newDescription = editingDescription.trim();
+    const newDesc = editingDescription.trim();
     if (!newTitle) return;
-    const before = tasks.find((t) => t._id === taskId);
-    if (!before) return;
 
-    const updated = {
-      ...before,
-      title: newTitle,
-      description: newDescription,
-    };
-    setTasks((prev) => prev.map((t) => (t._id === taskId ? updated : t)));
+    const before = tasks.find((t) => t._id === taskId);
+    const patched = { ...before, title: newTitle, description: newDesc } as Task;
+    setTasks((prev) => prev.map((t) => t._id === taskId ? patched : t));
+    await putTaskLocal(patched);
     setEditingId(null);
-    await putTaskLocal(updated);
+
+    if (isLocalTaskId(taskId)) {
+      await queue({
+        id: "upd-" + taskId,
+        op: "update",
+        clientId: taskId,
+        data: { title: newTitle, description: newDesc },
+        ts: Date.now(),
+      } as OutboxOp);
+      return;
+    }
 
     if (!navigator.onLine) {
       await queue({
         id: "upd-" + taskId,
         op: "update",
-        clientId: taskId,
-        data: updated,
+        serverId: taskId,
+        data: { title: newTitle, description: newDesc },
         ts: Date.now(),
-      });
+      } as OutboxOp);
       return;
     }
 
     try {
-      await api.put(`/tasks/${taskId}`, updated);
+      await api.put(`/tasks/${taskId}`, { title: newTitle, description: newDesc });
     } catch {
       await queue({
         id: "upd-" + taskId,
         op: "update",
-        clientId: taskId,
-        data: updated,
+        serverId: taskId,
+        data: { title: newTitle, description: newDesc },
         ts: Date.now(),
-      });
+      } as OutboxOp);
     }
   }
-
+  
   async function handleStatusChange(task: Task, newStatus: Status) {
     const updated = { ...task, status: newStatus };
     setTasks((prev) => prev.map((x) => (x._id === task._id ? updated : x)));
     await putTaskLocal(updated);
 
-    if (!navigator.onLine) {
+    if (isLocalTaskId(task._id)) {
       await queue({
         id: "upd-" + task._id,
         op: "update",
         clientId: task._id,
+        data: { status: newStatus },
+        ts: Date.now(),
+      });
+      return;
+    }
+
+    if (!navigator.onLine) {
+      await queue({
+        id: "upd-" + task._id,
+        op: "update",
+        serverId: task._id,
         data: { status: newStatus },
         ts: Date.now(),
       });
@@ -218,7 +231,7 @@ export default function Dashboard() {
       await queue({
         id: "upd-" + task._id,
         op: "update",
-        clientId: task._id,
+        serverId: task._id,
         data: { status: newStatus },
         ts: Date.now(),
       });
@@ -230,7 +243,7 @@ export default function Dashboard() {
     setTasks((prev) => prev.filter((t) => t._id !== taskId));
     await removeTaskLocal(taskId);
 
-    if (!navigator.onLine) {
+    if (isLocalTaskId(taskId)) {
       await queue({
         id: "del-" + taskId,
         op: "delete",
@@ -240,15 +253,24 @@ export default function Dashboard() {
       return;
     }
 
+    if (!navigator.onLine) {
+      await queue({
+        id: "del-" + taskId,
+        op: "delete",
+        serverId: taskId,
+        ts: Date.now(),
+      });
+      return;
+    }
+
     try {
       await api.delete(`/tasks/${taskId}`);
     } catch {
       setTasks(backup);
-      for (const t of backup) await putTaskLocal(t);
       await queue({
         id: "del-" + taskId,
         op: "delete",
-        clientId: taskId,
+        serverId: taskId,
         ts: Date.now(),
       });
     }
@@ -257,19 +279,22 @@ export default function Dashboard() {
   function logout() {
     localStorage.removeItem("token");
     setAuth(null);
-    navigate("/login", { replace: true });
+    window.location.href = "/"; // ✅ Ya redirige a Welcome
   }
 
   const filtered = useMemo(() => {
     let list = tasks;
-    if (search.trim())
-      list = list.filter((t) =>
-        t.title.toLowerCase().includes(search.toLowerCase())
-      );
-    if (filter === "active")
+    if (search.trim()) {
+      const s = search.toLowerCase();
+      list = list.filter((t) => (t.title || "").toLowerCase().includes(s));
+    }
+    // 👇 "pending" = todo lo que NO esté "Completada"
+    if (filter === "pending") {
       list = list.filter((t) => t.status !== "Completada");
-    if (filter === "completed")
+    }
+    if (filter === "completed") {
       list = list.filter((t) => t.status === "Completada");
+    }
     return list;
   }, [tasks, search, filter]);
 
@@ -282,147 +307,190 @@ export default function Dashboard() {
   return (
     <div className="wrap">
       <header className="topbar">
-        <h1>To-Do PWA</h1>
-        <div className="spacer" />
-        <div className="topbar-row">
-          <div className="stats">
-            <span>Total: {stats.total}</span>
-            <span>Hechas: {stats.done}</span>
-            <span>Pendientes: {stats.pending}</span>
-          </div>
-          <span
-            className={`connection-status ${online ? "online" : "offline"}`}
-          >
-            <span className="wifi-icon">📶</span> {online ? "Online" : "Offline"}
-          </span>
-        </div>
-
-        <button className="btn danger" onClick={logout}>
-          Salir
-        </button>
+        <h1>Bienvenido, {userName} 👋</h1>
+        <button className="btn btn-logout" onClick={logout}>Salir</button>
       </header>
 
-      <main>
-        <form className="add" onSubmit={addTask}>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Título…"
-          />
-          <input
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Descripción…"
-          />
-          <button className="btn">Agregar</button>
-        </form>
+      <main className="dashboard-content">
+        
+        <div className="controls-and-stats">
+          
+          <form className="add-compact" onSubmit={addTask}>
+            <div className="input-group">
+              <input
+                className="input-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Título"
+                required
+              />
+              <textarea
+                className="input-desc"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Descripción"
+                rows={1}
+              />
+            </div>
+            <button className="btn btn-add">Añadir Tarea</button>
+          </form>
 
-        <div className="toolbar">
-          <input
-            className="search"
-            placeholder="Buscar…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div className="filters">
-            <button
-              className={filter === "all" ? "chip active" : "chip"}
-              onClick={() => setFilter("all")}
-              type="button"
-            >
-              Todas
-            </button>
-            <button
-              className={filter === "active" ? "chip active" : "chip"}
-              onClick={() => setFilter("active")}
-              type="button"
-            >
-              Activas
-            </button>
-            <button
-              className={filter === "completed" ? "chip active" : "chip"}
-              onClick={() => setFilter("completed")}
-              type="button"
-            >
-              Hechas
-            </button>
+          <div className="stats-card">
+            <div className="stats-grid">
+              <div className="stat-item total">
+                <span>Total</span>
+                <strong>{stats.total}</strong>
+              </div>
+              <div className="stat-item done">
+                <span>Hechas</span>
+                <strong>{stats.done}</strong>
+              </div>
+              <div className="stat-item">
+                <span>Pendientes</span>
+                <strong>{stats.pending}</strong>
+              </div>
+
+              <div>
+                <span 
+                  className="badge" 
+                  style={{
+                    marginLeft: 8, 
+                    backgroundColor: online ? "#1f6feb" : "violet"
+                  }}
+                >
+                  {online ? "Online" : "Offline"}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+          
+          <div className="toolbar-compact">
+            <input
+              className="input-search"
+              placeholder="Buscar por titulo o descripcion"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <div className="filters-group">
+              <button
+                className={`btn-filter ${filter === "all" ? "active" : ""}`}
+                onClick={() => setFilter("all")}
+                type="button"
+              >
+                Todas
+              </button>
+              {/* 👇 Cambiado de "Activas" → "Pendientes" */}
+              <button
+                className={`btn-filter ${filter === "pending" ? "active" : ""}`}
+                onClick={() => setFilter("pending")}
+                type="button"
+              >
+                Pendientes
+              </button>
+              <button
+                className={`btn-filter ${filter === "completed" ? "active" : ""}`}
+                onClick={() => setFilter("completed")}
+                type="button"
+              >
+                Hechas
+              </button>
+            </div>
+          </div>
+
+        </div> 
 
         {loading ? (
-          <p>Cargando…</p>
+          <p className="loading-message">Cargando tareas</p>
         ) : filtered.length === 0 ? (
-          <p className="empty">Sin tareas</p>
+          <p className="empty-message">No hay tareas que mostrar</p>
         ) : (
-          <ul className="list">
+          <ul className="task-list">
             {filtered.map((t) => (
               <li
                 key={t._id}
-                className={`item ${t.status === "Completada" ? "done" : ""}`}
+                className={`task-item ${t.status === "Completada" ? "done" : ""}`}
               >
-                <div className="select-wrapper">
-                  <select
-                    className={`custom-select ${t.status
-                      .toLowerCase()
-                      .replace(/\s/g, "")}`}
-                    value={t.status}
-                    onChange={(e) =>
-                      handleStatusChange(t, e.target.value as Status)
-                    }
-                  >
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="En Progreso">En Progreso</option>
-                    <option value="Completada">Completada</option>
-                  </select>
-                  <span className="select-arrow">▾</span>
-                </div>
+                <select
+                  value={t.status}
+                  onChange={(e) => handleStatusChange(t, e.target.value as Status)}
+                  className="status-select"
+                  title="Estado"
+                >
+                  <option value="Pendiente">Pendiente</option>
+                  <option value="En Progreso">En Progreso</option>
+                  <option value="Completada">Completada</option>
+                </select>
+
+                <label className="task-check-label">
+                  <input
+                    type="checkbox"
+                    checked={t.status === "Completada"}
+                    onChange={() => handleStatusChange(
+                      t, 
+                      t.status === "Completada" ? "Pendiente" : "Completada"
+                    )}
+                  />
+                </label>
 
                 {editingId === t._id ? (
-                  <div className="edit-form">
+                  <div className="task-edit-form">
                     <input
-                      className="edit"
+                      className="edit-input edit-title"
                       value={editingTitle}
                       onChange={(e) => setEditingTitle(e.target.value)}
-                      placeholder="Título…"
+                      placeholder="Título"
                     />
-                    <input
-                      className="edit"
+                    <textarea
+                      className="edit-input edit-desc"
                       value={editingDescription}
                       onChange={(e) => setEditingDescription(e.target.value)}
-                      placeholder="Descripción…"
+                      placeholder="Descripción"
+                      rows={2}
                     />
-                    <button className="btn" onClick={() => saveEdit(t._id)}>
-                      Guardar
-                    </button>
+                    <div className="edit-actions">
+                      <button 
+                        className="btn" 
+                        onClick={() => saveEdit(t._id)}
+                      >
+                        Guardar
+                      </button>
+                      <button 
+                        className="btn btn-cancel" 
+                        onClick={cancelEdit}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  <div onDoubleClick={() => startEdit(t)}>
-                    <strong>{t.title}</strong>
-                    <br />
-                    <small>{t.description}</small>
-                    <br />
-                    <em>{t.status}</em>
+                  <div className="task-info">
+                    <span className="task-title" onDoubleClick={() => startEdit(t)}>
+                      {t.title || "(sin título)"}
+                    </span>
+                    {t.description && (
+                      <p className="task-description">{t.description}</p>
+                    )}
                   </div>
                 )}
 
-                <div className="actions">
-                  {editingId !== t._id && (
-                    <button
-                      className="icon"
-                      title="Editar"
+                {editingId !== t._id && (
+                  <div className="task-actions">
+                    <button 
+                      className="icon-btn edit-btn" 
+                      title="Editar" 
                       onClick={() => startEdit(t)}
                     >
-                      <FaEdit /> Editar
+                      ✏️
                     </button>
-                  )}
-                  <button
-                    className="icon danger"
-                    title="Eliminar"
-                    onClick={() => removeTask(t._id)}
-                  >
-                    <FaTrash /> Borrar
-                  </button>
-                </div>
+                    <button 
+                      className="icon-btn" 
+                      title="Eliminar" 
+                      onClick={() => removeTask(t._id)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
